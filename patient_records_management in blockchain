@@ -1,0 +1,365 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+// patient contract
+contract Patient
+{
+     struct patient{
+     uint256 patient_id; 
+     string patient_name;
+     uint256 age;
+     string gender;
+     string height;
+     uint256 weight;
+     string patient_address;
+     uint256 phone_no;
+     string email_id;
+     uint256 date;
+     uint256 doctor_id;
+     string problem;
+     
+     }
+     patient p;
+     
+     mapping (uint256 => patient)public search_patient;
+
+     address owner;address doctor;
+     
+     constructor()
+     {
+        owner=0x5B38Da6a701c568545dCfcB03FcB875f56beddC4; //address of hospital
+         doctor=0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2; //address of doctor
+     }
+     
+     modifier whoaccess()
+     {
+         require(msg.sender==owner||msg.sender==doctor,"You cannot accessable: ");
+         //Both hosptial and doctor can able to access
+         _;
+     }
+
+    uint patientid=1;
+
+    function store_patient_details(string memory _patient_name,
+                                   uint256 _age,string memory _gender,
+                                   string memory _problem,string memory _height,
+                                   uint256 _weight,string memory _patient_address,
+                                   uint256 _phone_no,string memory _email_id,
+                                   uint256 _date,uint256 _doctor_id)public whoaccess
+    {
+        search_patient[patientid++]=patient({patient_id:patientid,
+        patient_name:_patient_name,problem:_problem,age:_age,gender:_gender,
+        height:_height,weight:_weight,patient_address:_patient_address,
+        phone_no:_phone_no,email_id:_email_id,date:_date,doctor_id:_doctor_id});
+    }
+
+
+    function changeHospitalOwnership(address _newOwner) public returns(string memory)
+    {   
+        
+        owner=_newOwner;
+        return("Ownership of hospital has been changed");
+    }
+
+    function changedoctorOwnership(address _newDoctorOwner) public returns(string memory)
+    {   
+        
+        doctor=_newDoctorOwner;
+        return("Ownership of Doctor has been changed");
+    }
+}
+
+//attender.sol
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+contract attender
+{
+     struct attendant{
+     uint256 patient_id;
+     string attendant_name;
+     string attendant_relation;
+     uint256 attendant_phn_no;
+     }
+     attendant a;
+      mapping (uint256 => attendant)public search_attendant;
+    
+    address owner;
+
+      constructor()
+     {
+          owner=0x5B38Da6a701c568545dCfcB03FcB875f56beddC4; //address of hospital
+         
+     }
+     
+     modifier whoaccess()
+     {
+         require(msg.sender==owner,"You cannot accessable: "); //hospital only access
+         _;
+     }
+
+     function store_attendant_details(uint256 enter_patientid,
+                                      string memory _attendant_name,
+                                      string memory _attendant_relation, 
+                                      uint256 _attendant_phn_no)public whoaccess
+     {
+
+         search_attendant[enter_patientid]=attendant({patient_id:enter_patientid,
+                                           attendant_name:_attendant_name,
+                                           attendant_relation:_attendant_relation,
+                                           attendant_phn_no:_attendant_phn_no});
+     }
+
+}
+
+//doctor.sol
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+contract Doctor {
+    address owner;
+   constructor()
+     {
+         owner=0x5B38Da6a701c568545dCfcB03FcB875f56beddC4; //address of hospital
+        
+     }
+     
+     modifier whoaccess()
+     {
+         require(msg.sender==owner,"Access not allowed ");
+         //hospital can only able to access
+         _;
+     }
+     
+      mapping(uint256 => doctor) doctorlist;
+    
+     struct doctor{
+         uint256 doctorid;
+         string doctorname;
+         string doctor_specialisation;
+         uint256 doctor_ph_no;
+         string doctor_address;
+     }
+     doctor d;
+     mapping(uint256=>doctor)public search_doctor;
+
+     
+     function store_doctor_details(uint16 doctor_id,
+                                   string memory doctor_name,
+                                   string memory _doctor_specialisation,
+                                   uint256 _doctor_ph_no,
+                                   string memory _doctor_address)public whoaccess
+     {
+         search_doctor[doctor_id]=doctor({doctorid:doctor_id,doctorname:doctor_name,
+                                  doctor_specialisation:_doctor_specialisation,
+                                  doctor_ph_no:_doctor_ph_no,
+                                  doctor_address:_doctor_address});
+     }
+}
+
+
+//records.sol
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Records
+{
+    address owner;address doctor;
+    constructor()
+     {
+         owner=0x5B38Da6a701c568545dCfcB03FcB875f56beddC4; //address of hospital
+         doctor=0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2; //address of doctor
+     }
+     
+     modifier whoaccess()
+     {
+         require(msg.sender==owner||msg.sender==doctor,"You cannot accessable: ");
+          //Both hosptial and doctor can able to access
+         _;
+     }
+
+    struct insurance{
+     uint256 patient_id;
+     string applicable;
+     uint64 policy_no;
+     string insurer;
+     string policy_type;
+     string policy_limit;
+     }
+     insurance i;
+
+     mapping(uint256 => insurance) public insurancelist;
+     mapping(uint256 => history) patienthistory;
+     mapping(uint256 => diag) diagnosis;
+     mapping(uint256 => treat) treatment;
+
+
+     function insurance_details( uint256 patientid,
+                                 string memory _applicable,
+                                 uint64 _policy_no,string memory _insurer,
+                                 string memory _policy_type,
+                                 string memory _policy_limit)public whoaccess
+     {
+         insurancelist[patientid]=insurance({patient_id:patientid,
+                                  applicable:_applicable,policy_no:_policy_no,
+                                  insurer:_insurer,policy_type:_policy_type,
+                                  policy_limit:_policy_limit});
+     }
+
+      
+       struct history{
+     uint256 patient_id;
+     string complaints;
+     string duration;
+     }
+     history hi;
+
+     function present_illness(uint256 patient_id,string memory _complaints,
+                              string memory _duration)public whoaccess 
+        {
+              
+              hi.complaints = _complaints;
+              hi.duration = _duration;
+              
+              patienthistory[patient_id] = hi;
+        }
+
+        function get_present_illness(uint256 patient_id)public whoaccess
+                                       view returns (string memory,string memory)
+        {
+              
+               history memory his = patienthistory[patient_id];
+               return (his.complaints,his.duration);
+        }
+
+
+      mapping(uint256 => past) pasthistory;
+        function past_illness(uint256 patient_id,string memory _family_history,string memory _personal_history,string memory _drug_history)public whoaccess {
+              
+              pa.family_history = _family_history;
+              pa.personal_history = _personal_history;
+              pa.drug_history = _drug_history;
+              
+              
+              pasthistory[patient_id] = pa;
+          }
+           function get_past_illness(uint256 patient_id)public whoaccess view returns (string memory,string memory,string memory){
+              
+               past memory pas = pasthistory[patient_id];
+               return (pas.family_history,pas.personal_history,pa.drug_history);
+          }
+
+
+     
+      function func_diagnosis(uint256 patient_id,string memory _diag_summary,
+                              string memory _prescription)
+                              public whoaccess
+            {
+
+              d.diag_summary = _diag_summary;
+              d.prescription = _prescription;
+              
+              diagnosis[patient_id] = d;
+              
+            }
+
+          function get_func_diagnosis(uint256 patient_id)
+                                      public whoaccess view returns 
+                                      (string memory,string memory){
+              
+               diag memory df = diagnosis[patient_id];
+              
+              return (  df.diag_summary,df.prescription);    
+              
+              }
+
+            function treatment_summary(uint256 patient_id,
+                                       string memory _treatment,
+                                       string memory _date_treatment,
+                                       uint256 _doctor_id,uint256 _hospital_id,
+                                       string memory _discharge,
+                                       string memory _follow_up)
+                                       public whoaccess 
+            {
+              tr.treatment = _treatment;
+              tr.date_treatment = _date_treatment;
+              tr.doctor_id = _doctor_id;
+              tr.hospital_id = _hospital_id;
+              tr.discharge = _discharge;
+              tr.follow_up = _follow_up;
+              
+              treatment[patient_id] = tr;
+            }
+
+           function 
+           get_treatment_summary(uint256 patient_id)
+                                          public whoaccess view returns 
+                                          (string memory,
+                                          string memory,
+                                          uint256,uint256,
+                                          string memory,
+                                          string memory){
+              
+               treat memory tre = treatment[patient_id];
+              
+              return (tre.treatment,tre.date_treatment,
+                      tre.doctor_id,tre.hospital_id,tre.discharge,tre.follow_up);    
+              
+              }
+
+     
+
+
+      mapping(uint256 => prev) prevdates;
+        function previous_dates(uint256 patient_id,string memory _previous)public whoaccess {
+         pr.previous = _previous;
+         
+         prevdates[patient_id] = pr;
+     }
+     function get_previous_dates(uint256 patient_id)public whoaccess view returns (string memory){
+         prev memory pre = prevdates[patient_id];
+         return (pre.previous);
+     }
+     
+     
+       mapping(uint256 => patient) patientlist;
+     
+      struct patient{
+     uint256 patient_id;
+     }
+     patient p;
+      struct prev{
+          uint256 patient_id;
+          string previous;
+      }
+      prev pr;
+       struct past{
+         uint256 patient_id;
+     string family_history;
+     string personal_history;
+     string drug_history;
+     }
+     past pa;
+     
+    
+struct diag{
+    uint256 patient_id;
+     string diag_summary;
+     string prescription;
+}
+diag d;
+struct treat{
+     string treatment;
+     string date_treatment;
+      uint256 doctor_id;
+     uint256 hospital_id;
+     string discharge;
+     string follow_up;
+     }
+     treat tr;
+
+
+}
+
+//project end.
